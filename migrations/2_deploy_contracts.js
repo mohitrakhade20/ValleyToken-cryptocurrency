@@ -1,5 +1,5 @@
 const ValleyToken = artifacts.require("ValleyToken");
 
 module.exports = function (deployer) {
-  deployer.deploy(ValleyToken);
+  deployer.deploy(ValleyToken, 1000000);
 };
