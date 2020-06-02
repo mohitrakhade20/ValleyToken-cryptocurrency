@@ -112,41 +112,34 @@ contract("ValleyTokenSale", function (accounts) {
       });
   });
 
-  it("ends token sale", function () {
+  it("facilitates the endSale", () => {
     return ValleyToken.deployed()
-      .then(function (instance) {
-        // Grab token instance first
+      .then((instance) => {
         tokenInstance = instance;
         return ValleyTokenSale.deployed();
       })
-      .then(function (instance) {
-        // Then grab token sale instance
+      .then((instance) => {
         tokenSaleInstance = instance;
-        // Try to end sale from account other than the admin
         return tokenSaleInstance.endSale({ from: buyer });
       })
       .then(assert.fail)
-      .catch(function (error) {
-        assert(
-          error.message.indexOf("revert" >= 0, "must be admin to end sale")
-        );
-        // End sale as admin
+      .catch((error) => {
+        assert(error.message, "cannot endSale from someone other than admin");
         return tokenSaleInstance.endSale({ from: admin });
       })
-      .then(function (receipt) {
+      .then((receipt) => {
         return tokenInstance.balanceOf(admin);
       })
-      .then(function (balance) {
+      .then((balance) => {
         assert.equal(
           balance.toNumber(),
           999990,
-          "returns all unsold dapp tokens to admin"
+          "balance left with admin after ending sale"
         );
-        // Check that token price was reset when selfDestruct was called
-        return tokenSaleInstance.tokenPrice();
+        return tokenInstance.balanceOf(tokenSaleInstance.address);
       })
-      .then(function (price) {
-        assert.equal(price.toNumber(), 0, "token price was reset");
+      .then((balance) => {
+        assert.equal(balance.toNumber(), 0, "contract has been reset");
       });
   });
 });
