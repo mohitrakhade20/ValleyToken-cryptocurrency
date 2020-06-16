@@ -1,0 +1,17 @@
+{
+  "name": "valley-token-sale",
+  "version": "1.0.0",
+  "description": "Valley Token Sale ICO",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "dev": "lite-server"
+  },
+  "author": "Mohit",
+  "license": "ISC",
+  "devDependencies": {
+    "lite-server": "^2.5.4"
+  }
+}
