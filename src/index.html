@@ -8,7 +8,53 @@
     <link rel="stylesheet" href="css/bootstrap.min.css" />
   </head>
   <body>
-    <h1>VALLEY Token ICO</h1>
+    <div class="container" style="650px">
+      <div class="row">
+        <div class="col-lg-12">
+          <h1 class="text-center">ValleyToken ICO by Coding Valley</h1>
+          <hr />
+          <br />
+        </div>
+        <div id="loader">
+            <p class="text-center">Loading...</p>
+        </div>
+        <div id="content" class="text-center">
+          <p>
+            Introdusing Coding Valley's Token ( VALLEY )! Token Price is
+            <span class="token-price"></span> Ether.You currently have
+            <span class="valley-balance"></span> VALLEY.
+          </p>
+          <br />
+        <form onSubmit="App.buyTokens(); return false;" role="form" style="width:60%; justify-content: center; display: inline-block">
+            <div class="form-group">
+                <div class="input-group">
+                    <input id="numberOfTokens" class="form-control input-lg" type="number" name="number" value="1" min="1"
+                        pattern="[0-9]">
+                    </input>
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-primary btn-lg">Buy Tokens</button>
+                    </span>
+                </div>
+            </div>
+        </form>
+
+        <div class="progress" style="width:60%; justify-content: center; display: inline-block" aria-valuemin="0">
+            <div class="progress-bar progress-bar-success" style="width: 35%">
+                <span class="sr-only">35% Complete (success)</span>
+            </div>
+            <div class="progress-bar progress-bar-warning progress-bar-striped" style="width: 20%">
+                <span class="sr-only">20% Complete (warning)</span>
+            </div>
+            <div class="progress-bar progress-bar-danger" style="width: 10%">
+                <span class="sr-only">10% Complete (danger)</span>
+            </div>
+        </div>
+        <p><span class="tokens-sold"></span> / <span class="tokens-available"></span> tokens sold</p>
+        <hr>
+        <p id="accountAddress"></p>
+        </div>
+      </div>
+    </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
