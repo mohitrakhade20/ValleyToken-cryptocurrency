@@ -4274,12 +4274,12 @@
         }
       },
       "links": {},
-      "address": "0x0fC7b4d84c69aA496Ff3F29D51b578033e70eA6e",
-      "transactionHash": "0x7ffb76341523367d581ace321aab4a4ba822128c1e9c2437fb4a39db4829a46c"
+      "address": "0x7A7535023A593454Be104766CecA64b1C09d895d",
+      "transactionHash": "0xfa1db1cb19fa0dfb00ff3b49fc0b3afb2bb674bccc43cabc94ff096dfcc508cc"
     }
   },
   "schemaVersion": "3.0.23",
-  "updatedAt": "2020-06-03T04:08:12.494Z",
+  "updatedAt": "2020-06-19T08:54:59.934Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {}

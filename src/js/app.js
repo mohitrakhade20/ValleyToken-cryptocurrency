@@ -3,14 +3,16 @@ App = {
   contracts: {},
   account: "0x0",
   loading: false,
-  tokenPrice: 1000000000000000,
+  tokenPrice: "1000000000000000",
   tokensSold: 0,
   tokensAvailable: 750000,
-  init: function () {
-    console.log("App initilized...");
+
+  init: () => {
+    console.log("App Initialized");
     return App.initWeb3();
   },
-  initWeb3: function () {
+
+  initWeb3: () => {
     if (typeof web3 !== "undefined") {
       // If a web3 instance is already provided by Meta Mask.
       App.web3Provider = web3.currentProvider;
@@ -22,32 +24,52 @@ App = {
       );
       web3 = new Web3(App.web3Provider);
     }
-    App.initContracts();
+    return App.initContracts();
   },
 
-  initContracts: function () {
-    $.getJSON("ValleyTokenSale.json", function (valleyTokenSale) {
+  initContracts: () => {
+    $.getJSON("ValleyTokenSale.json", (valleyTokenSale) => {
       App.contracts.ValleyTokenSale = TruffleContract(valleyTokenSale);
       App.contracts.ValleyTokenSale.setProvider(App.web3Provider);
-      App.contracts.ValleyTokenSale.deployed().then(function (valleyTokenSale) {
-        console.log("VALLEY token sale Address: ", valleyTokenSale.address);
+      App.contracts.ValleyTokenSale.deployed().then((valleyTokenSale) => {
+        console.log("Valley Token Sale Address: ", valleyTokenSale.address);
       });
-    }).done(function () {
-      $.getJSON("ValleyToken.json", function (valleyToken) {
+    }).done(() => {
+      $.getJSON("ValleyToken.json", (valleyToken) => {
         App.contracts.ValleyToken = TruffleContract(valleyToken);
         App.contracts.ValleyToken.setProvider(App.web3Provider);
-        App.contracts.ValleyToken.deployed().then(function (valleyToken) {
-          console.log("VALLEY token  Address: ", valleyToken.address);
+        App.contracts.ValleyToken.deployed().then((valleyToken) => {
+          console.log("Valley Token Address: ", valleyToken.address);
         });
-        return App.render();
       });
+      App.listenForEvents();
+      return App.render();
     });
   },
 
-  render: function () {
+  // Listen the Sell event once the contract is initalized with web3
+  listenForEvents: () => {
+    App.contracts.ValleyTokenSale.deployed().then((instance) => {
+      return instance
+        .Sell(
+          {},
+          {
+            fromBlock: 0,
+            toBlock: "latest",
+          }
+        )
+        .watch((error, event) => {
+          console.log("Event Triggerd: " + event);
+          App.render();
+        });
+    });
+  },
+
+  render: () => {
     if (App.loading) {
       return;
     }
+
     App.loading = true;
 
     var loader = $("#loader");
@@ -55,44 +77,43 @@ App = {
 
     loader.show();
     content.hide();
-    //Load account data
-    web3.eth.getCoinbase(function (err, account) {
-      if (err === null) {
-        console.log("account", account);
+
+    web3.eth.getCoinbase((error, account) => {
+      if (error === null) {
         App.account = account;
-        $("#accountAddress").html("Your Account: " + account);
+        $("#accountAddress").html("Your account: " + account);
       }
     });
 
-    // load token SALE contract
     App.contracts.ValleyTokenSale.deployed()
-      .then(function (instance) {
+      .then((instance) => {
         valleyTokenSaleInstance = instance;
         return valleyTokenSaleInstance.tokenPrice();
       })
-      .then(function (tokenPrice) {
+      .then((tokenPrice) => {
         App.tokenPrice = tokenPrice;
+        console.log("Token Price in wei: " + tokenPrice);
         $(".token-price").html(
-          web3.fromWei(App.tokenPrice, "ether").toNumber()
+          web3.fromWei(App.tokenPrice.toNumber(), "ether")
         );
         return valleyTokenSaleInstance.tokensSold();
       })
-      .then(function (tokensSold) {
+      .then((tokensSold) => {
         App.tokensSold = tokensSold.toNumber();
         $(".tokens-sold").html(App.tokensSold);
         $(".tokens-available").html(App.tokensAvailable);
 
-        var progressPercent =
-          (Math.ceil(App.tokensSold) / App.tokensAvailable) * 100;
-        $("#progress").css("width", progressPercent + "%");
+        var progressPercent = Math.ceil(
+          (App.tokensSold / App.tokensAvailable) * 100
+        );
+        $("#progressValue").css({ width: progressPercent + "%" });
 
-        // load token contract
         App.contracts.ValleyToken.deployed()
-          .then(function (instance) {
+          .then((instance) => {
             valleyTokenInstance = instance;
             return valleyTokenInstance.balanceOf(App.account);
           })
-          .then(function (balance) {
+          .then((balance) => {
             $(".valley-balance").html(balance.toNumber());
             App.loading = false;
             loader.hide();
@@ -101,28 +122,30 @@ App = {
       });
   },
 
-  buyTokens: function () {
-    $("#content").hide();
+  buyTokens: () => {
     $("#loader").show();
+    $("#content").hide();
     var numberOfTokens = $("#numberOfTokens").val();
+    console.log("Number of Tokens: " + numberOfTokens);
     App.contracts.ValleyTokenSale.deployed()
-      .then(function (instance) {
+      .then((instance) => {
         return instance.buyTokens(numberOfTokens, {
           from: App.account,
           value: numberOfTokens * App.tokenPrice,
-          gas: 500000, // Gas limit
+          gas: 500000, // Gas Limit
         });
       })
-      .then(function (result) {
-        console.log("Tokens bought...");
-        $("form").trigger("reset"); // reset number of tokens in form
-        // Wait for Sell event
+      .then((result) => {
+        console.log("Tokens Bought");
+        $("form").trigger("reset"); // Reset the number of tokens in the form
       });
+
+    //Wait for sell event and once sell is triggered we refresh the page
   },
 };
 
-$(function () {
-  $(window).load(function () {
+$(() => {
+  $(window).load(() => {
     App.init();
   });
 });
